@@ -1,8 +1,11 @@
 ﻿using System;
-using System.Runtime.InteropServices;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
+using System.Threading;
 using System.Windows.Forms;
 using System.IO;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace ConsoleApp2
 {
@@ -12,7 +15,14 @@ namespace ConsoleApp2
         private const int WM_KEYDOWN = 0x0100;
         private static LowLevelKeyboardProc _proc = HookCallback;
         private static IntPtr _hookID = IntPtr.Zero;
-        public static Keyboard kb = new Keyboard();
+
+        public static Keyboard.ScanCodeShort attack = 0;
+        public static Keyboard.ScanCodeShort jump = 0;
+        public static Keyboard.ScanCodeShort buff1 = 0;
+        public static Keyboard.ScanCodeShort buff2 = 0;
+        public static Keyboard.ScanCodeShort buff3 = 0;
+        public static Keyboard.ScanCodeShort rush = 0;
+
         static void Main(string[] args)
         {
             //Keyboard kb = new Keyboard();       
@@ -21,11 +31,12 @@ namespace ConsoleApp2
 
             //hide
             ShowWindow(handle, SW_HIDE);
-
+            readkeys();
 
             _hookID = SetHook(_proc);
             Application.Run();
             UnhookWindowsHookEx(_hookID);
+
         }
 
         private static IntPtr SetHook(LowLevelKeyboardProc proc)
@@ -61,18 +72,21 @@ namespace ConsoleApp2
             if (nCode >= 0 && wParam == (IntPtr)WM_KEYDOWN)
             {
                 int vkCode = Marshal.ReadInt32(lParam);
+                Thread th = new Thread(Script.test);
 
-                if (vkCode == 121)
+                if (vkCode == 121) //f10
                 {
-                    Application.Exit();
+                    Environment.Exit(0);
+                    //Application.Exit();
                 }
-                else if (vkCode == 123)
+                else if (vkCode == 123) //f12
                 {
+                    Environment.Exit(1);
                     //pause
                 }
-                else if (vkCode == 120)
+                else if (vkCode == 120) // f9
                 {
-                    //script
+                    th.Start();         
                 }
                 //Console.WriteLine(vkCode);
                 //Console.WriteLine((Keys)vkCode);
@@ -80,9 +94,175 @@ namespace ConsoleApp2
                 //sw.Write((Keys)vkCode);
                 //sw.Close();
             }
+            
             return CallNextHookEx(_hookID, nCode, wParam, lParam);
         }
 
+        #region key parameter reader
+        public static void readkeys()
+        {
+            string configs = @".\config.txt";
+
+            List<string> lines = File.ReadAllLines(configs).ToList();
+
+            foreach (var line in lines)
+            {
+                string[] entries = line.Split('=');
+
+                switch (entries[0].ToLower())
+                {
+                    case "attack":
+                        attack = checkkeys(entries[1]);
+                        break;
+                    case "jump":
+                        jump = checkkeys(entries[1]);
+                        break;
+                    case "buff1":
+                        buff1 = checkkeys(entries[1]);
+                        break;
+                    case "buff2":
+                        buff2 = checkkeys(entries[1]);
+                        break;
+                    case "buff3":
+                        buff3 = checkkeys(entries[1]);
+                        break;
+                    case "rush":
+                        rush = checkkeys(entries[1]);
+                        break;
+                    default:
+                        break;
+                }
+                //Console.WriteLine(entries[0] + "=" + entries[1]);
+                //Console.WriteLine(entries[1]);
+            }
+
+        }
+
+        public static Keyboard.ScanCodeShort checkkeys(string a)
+        {
+            switch (a.ToLower())
+            {
+                case "a":
+                    return Keyboard.ScanCodeShort.KEY_A;
+                case "b":
+                    return Keyboard.ScanCodeShort.KEY_B;
+                case "c":
+                    return Keyboard.ScanCodeShort.KEY_C;
+                case "d":
+                    return Keyboard.ScanCodeShort.KEY_D;
+                case "e":
+                    return Keyboard.ScanCodeShort.KEY_E;
+                case "f":
+                    return Keyboard.ScanCodeShort.KEY_F;
+                case "g":
+                    return Keyboard.ScanCodeShort.KEY_G;
+                case "h":
+                    return Keyboard.ScanCodeShort.KEY_H;
+                case "i":
+                    return Keyboard.ScanCodeShort.KEY_I;
+                case "j":
+                    return Keyboard.ScanCodeShort.KEY_J;
+                case "k":
+                    return Keyboard.ScanCodeShort.KEY_K;
+                case "l":
+                    return Keyboard.ScanCodeShort.KEY_L;
+                case "m":
+                    return Keyboard.ScanCodeShort.KEY_M;
+                case "n":
+                    return Keyboard.ScanCodeShort.KEY_N;
+                case "o":
+                    return Keyboard.ScanCodeShort.KEY_O;
+                case "p":
+                    return Keyboard.ScanCodeShort.KEY_P;
+                case "q":
+                    return Keyboard.ScanCodeShort.KEY_Q;
+                case "r":
+                    return Keyboard.ScanCodeShort.KEY_R;
+                case "s":
+                    return Keyboard.ScanCodeShort.KEY_S;
+                case "t":
+                    return Keyboard.ScanCodeShort.KEY_T;
+                case "u":
+                    return Keyboard.ScanCodeShort.KEY_U;
+                case "v":
+                    return Keyboard.ScanCodeShort.KEY_V;
+                case "w":
+                    return Keyboard.ScanCodeShort.KEY_W;
+                case "x":
+                    return Keyboard.ScanCodeShort.KEY_X;
+                case "y":
+                    return Keyboard.ScanCodeShort.KEY_Y;
+                case "z":
+                    return Keyboard.ScanCodeShort.KEY_Z;
+                case "1":
+                    return Keyboard.ScanCodeShort.KEY_1;
+                case "2":
+                    return Keyboard.ScanCodeShort.KEY_2;
+                case "3":
+                    return Keyboard.ScanCodeShort.KEY_3;
+                case "4":
+                    return Keyboard.ScanCodeShort.KEY_4;
+                case "5":
+                    return Keyboard.ScanCodeShort.KEY_5;
+                case "6":
+                    return Keyboard.ScanCodeShort.KEY_6;
+                case "7":
+                    return Keyboard.ScanCodeShort.KEY_7;
+                case "8":
+                    return Keyboard.ScanCodeShort.KEY_8;
+                case "9":
+                    return Keyboard.ScanCodeShort.KEY_9;
+                case "0":
+                    return Keyboard.ScanCodeShort.KEY_0;
+                case "alt":
+                    return Keyboard.ScanCodeShort.LMENU;
+                case "space":
+                    return Keyboard.ScanCodeShort.SPACE;
+                case "ctrl":
+                    return Keyboard.ScanCodeShort.LCONTROL;
+                case "del":
+                    return Keyboard.ScanCodeShort.DELETE;
+                case "home":
+                    return Keyboard.ScanCodeShort.HOME;
+                case "pgdn":
+                    return Keyboard.ScanCodeShort.NEXT;
+                case "pgup":
+                    return Keyboard.ScanCodeShort.PRIOR;
+                case "end":
+                    return Keyboard.ScanCodeShort.END;
+                case "ins":
+                    return Keyboard.ScanCodeShort.INSERT;
+                case "f1":
+                    return Keyboard.ScanCodeShort.F1;
+                case "f2":
+                    return Keyboard.ScanCodeShort.F2;
+                case "f3":
+                    return Keyboard.ScanCodeShort.F3;
+                case "f4":
+                    return Keyboard.ScanCodeShort.F4;
+                case "f5":
+                    return Keyboard.ScanCodeShort.F5;
+                case "f6":
+                    return Keyboard.ScanCodeShort.F6;
+                case "f7":
+                    return Keyboard.ScanCodeShort.F7;
+                case "f8":
+                    return Keyboard.ScanCodeShort.F8;
+                case "f9":
+                    return Keyboard.ScanCodeShort.F9;
+                case "f10":
+                    return Keyboard.ScanCodeShort.F10;
+                case "f11":
+                    return Keyboard.ScanCodeShort.F11;
+                case "f12":
+                    return Keyboard.ScanCodeShort.F12;
+                default:
+                    return 0;
+            }
+        }
+        #endregion
+
+        #region DLLimports
         [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         private static extern IntPtr SetWindowsHookEx(int idHook,
             LowLevelKeyboardProc lpfn, IntPtr hMod, uint dwThreadId);
@@ -105,11 +285,72 @@ namespace ConsoleApp2
         static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
 
         const int SW_HIDE = 0;
+
+        #endregion 
+    }
+
+    public class Script
+    {
+        public static void test()
+        {
+            for (int i = 0; i <= 5; i++)
+            {
+                Keyboard.send(Keyboard.ScanCodeShort.KEY_A);
+                sleep(200);
+            }
+    }
+
+        public static void fj(Keyboard.ScanCodeShort a)
+        {
+            Keyboard.keydown(a);
+            sleep(105);
+            Keyboard.keyup(a);
+            sleep(136);
+            Keyboard.keydown(a);
+            sleep(114);
+            Keyboard.keyup(a);
+        }
+
+        public static void sleep(int time)
+        {
+            System.Threading.Thread.Sleep(time);
+        }
     }
 
     public class Keyboard
     {
-        public void Send(ScanCodeShort a)
+        public static void keydown(ScanCodeShort a)
+        {
+            INPUT[] Inputs = new INPUT[1];
+            INPUT Input = new INPUT();
+            Input.type = 1; // 1 = Keyboard Input
+            Input.U.ki.wScan = a;
+            Input.U.ki.dwFlags = KEYEVENTF.SCANCODE;
+            Inputs[0] = Input;
+            SendInput(1, Inputs, INPUT.Size);
+        }
+
+        public static void keyup(ScanCodeShort a)
+        {
+            INPUT[] Inputs = new INPUT[1];
+            INPUT Input = new INPUT();
+            Input.type = 1; // 1 = Keyboard Input
+            Input.U.ki.wScan = a;
+            Input.U.ki.dwFlags = KEYEVENTF.KEYUP | KEYEVENTF.SCANCODE;
+            Inputs[0] = Input;
+            SendInput(1, Inputs, INPUT.Size);
+        }
+
+        public static void hold1(ScanCodeShort a, ScanCodeShort b, int delay)
+        {
+            keydown(a);
+            Script.sleep(delay);
+            send(b);
+            Script.sleep(delay);
+            keyup(a);
+        }
+
+        public static void send(ScanCodeShort a)
         {
             INPUT[] Inputs = new INPUT[1];
             INPUT Input = new INPUT();
@@ -205,6 +446,7 @@ namespace ConsoleApp2
         [Flags]
         public enum KEYEVENTF : uint
         {
+            KEYDOWN = 0,
             EXTENDEDKEY = 0x0001,
             KEYUP = 0x0002,
             SCANCODE = 0x0008,
